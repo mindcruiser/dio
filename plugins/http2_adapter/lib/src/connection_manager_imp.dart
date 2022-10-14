@@ -79,6 +79,10 @@ class _ConnectionManager implements ConnectionManager {
         supportedProtocols: ['h2'],
       );
     } on SocketException catch (e) {
+      // Clean cache
+      _transportsMap.remove(domain);
+      _connectFutures.remove(domain);
+
       if (e.osError == null) {
         if (e.message.contains('timed out')) {
           throw DioError(
