@@ -93,6 +93,16 @@ class _ConnectionManager implements ConnectionManager {
         }
       }
       rethrow;
+    } on TlsException catch (e) {
+      // Clean cache
+      _transportsMap.remove(domain);
+      _connectFutures.remove(domain);
+
+      throw DioError(
+        requestOptions: options,
+        error: 'TlsException: $e',
+        type: DioErrorType.other,
+      );
     }
     // Config a ClientTransportConnection and save it
     var transport = ClientTransportConnection.viaSocket(socket);
