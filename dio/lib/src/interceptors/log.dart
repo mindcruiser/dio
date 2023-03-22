@@ -40,8 +40,8 @@ class LogInterceptor extends Interceptor {
   /// In flutter, you'd better use debugPrint.
   /// you can also write log in a file, for example:
   ///```dart
-  ///  var file=File("./log.txt");
-  ///  var sink=file.openWrite();
+  ///  final file=File("./log.txt");
+  ///  final sink=file.openWrite();
   ///  dio.interceptors.add(LogInterceptor(logPrint: sink.writeln));
   ///  ...
   ///  await sink.close();
@@ -50,7 +50,9 @@ class LogInterceptor extends Interceptor {
 
   @override
   void onRequest(
-      RequestOptions options, RequestInterceptorHandler handler) async {
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     logPrint('*** Request ***');
     _printKV('uri', options.uri);
     //options.headers;
@@ -59,11 +61,14 @@ class LogInterceptor extends Interceptor {
       _printKV('method', options.method);
       _printKV('responseType', options.responseType.toString());
       _printKV('followRedirects', options.followRedirects);
+      _printKV('persistentConnection', options.persistentConnection);
       _printKV('connectTimeout', options.connectTimeout);
       _printKV('sendTimeout', options.sendTimeout);
       _printKV('receiveTimeout', options.receiveTimeout);
       _printKV(
-          'receiveDataWhenStatusError', options.receiveDataWhenStatusError);
+        'receiveDataWhenStatusError',
+        options.receiveDataWhenStatusError,
+      );
       _printKV('extra', options.extra);
     }
     if (requestHeader) {

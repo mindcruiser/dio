@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-//import 'package:cookie_jar/cookie_jar.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
+
 import 'http.dart'; // make dio as global top-level variable
 import 'routes/request.dart';
 
@@ -17,18 +17,7 @@ parseJson(String text) {
 }
 
 void main() {
-  // add interceptors
-  //dio.interceptors.add(CookieManager(CookieJar()));
   dio.interceptors.add(LogInterceptor());
-  //(dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
-  //dio.options.receiveTimeout = 15000;
-//  (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-//      (client) {
-//    client.findProxy = (uri) {
-//      //proxy to my PC(charles)
-//      return "PROXY 10.1.10.250:8888";
-//    };
-//  };
   runApp(MyApp());
 }
 
@@ -52,11 +41,11 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String _text = "";
+  String _text = '';
 
   @override
   Widget build(BuildContext context) {
@@ -66,39 +55,45 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Container(
         padding: EdgeInsets.all(16),
-        child: Column(children: [
-          ElevatedButton(
-            child: Text("Request"),
-            onPressed: () async {
-              try {
-                await dio
-                    .get<String>("http://httpbin.org/status/404")
-                    .then((r) {
-                  setState(() {
-                    print(r.data);
-                    _text = r.data!.replaceAll(RegExp(r"\s"), "");
+        child: Column(
+          children: [
+            ElevatedButton(
+              child: Text('Request'),
+              onPressed: () async {
+                try {
+                  await dio
+                      .get<String>('https://httpbin.org/status/404')
+                      .then((r) {
+                    setState(() {
+                      print(r.data);
+                      _text = r.data!.replaceAll(RegExp(r'\s'), '');
+                    });
                   });
-                });
-              } catch (e) {
-                print("sss");
-                print(e);
-              }
-            },
-          ),
-          ElevatedButton(
-            child: Text("Open new page5"),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return RequestRoute();
-              }));
-            },
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Text(_text),
+                } catch (e) {
+                  print(e);
+                }
+              },
             ),
-          )
-        ]),
+            ElevatedButton(
+              child: Text('Open new page5'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return RequestRoute();
+                    },
+                  ),
+                );
+              },
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Text(_text),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

@@ -1,3 +1,13 @@
+# CHANGELOG
+
+## Unreleased
+
+- Improve code formats according to linter rules.
+
+## 2.1.0
+
+* For the `dio`'s 5.0 release.
+* Add `validateCertificate` for `ClientSetting`.
 
 ## [2.0.0]
 

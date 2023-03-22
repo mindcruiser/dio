@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 
 void main() async {
-  var dio = Dio();
-  dio.options.baseUrl = 'http://httpbin.org/status/';
+  final dio = Dio();
+  dio.options.baseUrl = 'https://httpbin.org/status/';
   dio.interceptors.add(
     InterceptorsWrapper(
       onRequest: (
@@ -17,10 +17,12 @@ void main() async {
     ),
   );
   print(
-      'All of the requests enter the interceptor at once, rather than executing sequentially.');
+    'All of the requests enter the interceptor at once, rather than executing sequentially.',
+  );
   await makeRequests(dio);
   print(
-      'All of the requests enter the interceptor sequentially by QueuedInterceptors');
+    'All of the requests enter the interceptor sequentially by QueuedInterceptors',
+  );
   dio.interceptors
     ..clear()
     ..add(
