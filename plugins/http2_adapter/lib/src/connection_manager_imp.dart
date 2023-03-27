@@ -104,7 +104,7 @@ class _ConnectionManager implements ConnectionManager {
       throw DioError(
         requestOptions: options,
         error: 'TlsException: $e',
-        type: DioErrorType.other,
+        type: DioErrorType.connectionTimeout,
       );
     }
 
