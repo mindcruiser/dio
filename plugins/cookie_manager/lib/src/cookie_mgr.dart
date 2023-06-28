@@ -39,7 +39,7 @@ class CookieManager extends Interceptor {
       } else if (b.path == null) {
         return 1;
       } else {
-        return (b.path!.length).compareTo(a.path!.length);
+        return b.path!.length.compareTo(a.path!.length);
       }
     });
     return cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
@@ -61,7 +61,11 @@ class CookieManager extends Interceptor {
           newCookies.isNotEmpty ? newCookies : null;
       handler.next(options);
     }).catchError((dynamic e, StackTrace s) {
-      final err = DioError(requestOptions: options, error: e, stackTrace: s);
+      final err = DioException(
+        requestOptions: options,
+        error: e,
+        stackTrace: s,
+      );
       handler.reject(err, true);
     });
   }
@@ -70,7 +74,7 @@ class CookieManager extends Interceptor {
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     _saveCookies(response).then((_) => handler.next(response)).catchError(
       (dynamic e, StackTrace s) {
-        final err = DioError(
+        final err = DioException(
           requestOptions: response.requestOptions,
           error: e,
           stackTrace: s,
@@ -81,11 +85,11 @@ class CookieManager extends Interceptor {
   }
 
   @override
-  void onError(DioError err, ErrorInterceptorHandler handler) {
+  void onError(DioException err, ErrorInterceptorHandler handler) {
     if (err.response != null) {
       _saveCookies(err.response!).then((_) => handler.next(err)).catchError(
         (dynamic e, StackTrace s) {
-          final error = DioError(
+          final error = DioException(
             requestOptions: err.response!.requestOptions,
             error: e,
             stackTrace: s,
@@ -118,17 +122,19 @@ class CookieManager extends Interceptor {
     // cookie handling here, because when `followRedirects` is set to false,
     // users will be available to handle cookies themselves.
     final isRedirectRequest = statusCode >= 300 && statusCode < 400;
+    // Saving cookies for the original site.
+    await cookieJar.saveFromResponse(response.realUri, cookies);
     if (isRedirectRequest && locations.isNotEmpty) {
+      final originalUri = response.realUri;
       await Future.wait(
         locations.map(
           (location) => cookieJar.saveFromResponse(
-            Uri.parse(location),
+            // Resolves the location based on the current Uri.
+            originalUri.resolve(location),
             cookies,
           ),
         ),
       );
-    } else {
-      await cookieJar.saveFromResponse(response.realUri, cookies);
     }
   }
 }
